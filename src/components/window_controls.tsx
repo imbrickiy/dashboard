@@ -3,31 +3,53 @@
 import { useEffect, useState } from 'react';
 
 function isTauri(): boolean {
-  return typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
+  if (typeof window === 'undefined') return false;
+  return '__TAURI_INTERNALS__' in window || '__TAURI__' in window;
 }
 
 async function handleMinimize(): Promise<void> {
-  if (!isTauri()) return;
-  const { getCurrentWindow } = await import('@tauri-apps/api/window');
-  const appWindow = getCurrentWindow();
-  await appWindow.minimize();
+  try {
+    if (!isTauri()) {
+      console.warn('Tauri API недоступен');
+      return;
+    }
+    const { getCurrentWindow } = await import('@tauri-apps/api/window');
+    const appWindow = getCurrentWindow();
+    await appWindow.minimize();
+  } catch (error) {
+    console.error('Ошибка при сворачивании окна:', error);
+  }
 }
 
 async function handleMaximize(): Promise<void> {
-  if (!isTauri()) return;
-  const { getCurrentWindow } = await import('@tauri-apps/api/window');
-  const appWindow = getCurrentWindow();
-  await appWindow.toggleMaximize();
+  try {
+    if (!isTauri()) {
+      console.warn('Tauri API недоступен');
+      return;
+    }
+    const { getCurrentWindow } = await import('@tauri-apps/api/window');
+    const appWindow = getCurrentWindow();
+    await appWindow.toggleMaximize();
+  } catch (error) {
+    console.error('Ошибка при разворачивании окна:', error);
+  }
 }
 
 async function handleClose(): Promise<void> {
-  if (!isTauri()) return;
-  const { getCurrentWindow } = await import('@tauri-apps/api/window');
-  const appWindow = getCurrentWindow();
-  await appWindow.close();
+  try {
+    if (!isTauri()) {
+      console.warn('Tauri API недоступен');
+      return;
+    }
+    const { getCurrentWindow } = await import('@tauri-apps/api/window');
+    const appWindow = getCurrentWindow();
+    await appWindow.close();
+  } catch (error) {
+    console.error('Ошибка при закрытии окна:', error);
+  }
 }
 
-export function WindowControls(): JSX.Element {
+export function WindowControls(): React.ReactElement {
   const [isClient, setIsClient] = useState<boolean>(false);
 
   useEffect(() => {
@@ -39,10 +61,14 @@ export function WindowControls(): JSX.Element {
   }
 
   return (
-    <div className="flex items-center gap-1 px-2 py-1">
+    <div className="flex items-center gap-1 px-2 py-1" style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}>
       <button
-        onClick={handleMinimize}
-        className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors"
+        type="button"
+        onClick={() => {
+          handleMinimize().catch(console.error);
+        }}
+        className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-green-300 hover:text-white transition-colors"
+        style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
         aria-label="Свернуть"
       >
         <svg
@@ -61,8 +87,12 @@ export function WindowControls(): JSX.Element {
         </svg>
       </button>
       <button
-        onClick={handleMaximize}
-        className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors"
+        type="button"
+        onClick={() => {
+          handleMaximize().catch(console.error);
+        }}
+        className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-yellow-300 hover:text-white transition-colors"
+        style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
         aria-label="Развернуть"
       >
         <svg
@@ -82,8 +112,12 @@ export function WindowControls(): JSX.Element {
         </svg>
       </button>
       <button
-        onClick={handleClose}
-        className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-red-500 hover:text-white transition-colors"
+        type="button"
+        onClick={() => {
+          handleClose().catch(console.error);
+        }}
+        className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-red-400 hover:text-white transition-colors"
+        style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
         aria-label="Закрыть"
       >
         <svg
