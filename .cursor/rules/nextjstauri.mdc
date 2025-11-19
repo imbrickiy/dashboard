@@ -1,0 +1,89 @@
+---
+alwaysApply: true
+---
+
+Соглашение о коммитах и Pull Request
+Формат сообщения коммита и PR:
+
+Код
+<тип>(<контекст1>,<контекст2>,...): <короткое описание>
+
+Правила:
+Всегда используйте этот формат для коммитов и заголовков Pull Request.
+
+<короткое описание> — на русском, 50–72 символа по возможности, глагол в инфинитиве или повелительной форме.
+
+Если изменение касается только документации — используйте docs.
+
+В описании PR дайте 1–2 абзаца: что сделано, почему, как тестировать.
+
+Типы коммитов (conventional)
+feat — новая функциональность
+fix — исправление ошибки
+refactor — реорганизация кода без новых фич и фиксов
+build — изменения в сборке, скриптах, зависимостях (npm, pnpm, cargo, tauri)
+docs — документация
+chore — вспомогательные задачи и настройки инструментов
+test — тесты и тестовая инфраструктура
+ci — изменения в CI/CD конфигурации
+
+Контексты (scope) для Next.js + Tauri
+Указывайте один или несколько модулей через запятую. Используйте эти контексты как стандарт для проекта:
+web — Next.js приложение, страницы и компоненты React
+api — Next.js API routes (если используются)
+ssg — статическая генерация / next export / out
+styles — стили, CSS/SCSS/Tailwind
+types — общие типы TypeScript
+deps — обновление зависимостей frontend
+scripts — npm/pnpm скрипты, husky, lint-staged
+tauri — общая конфигурация Tauri (src-tauri)
+rust — Rust-код в src-tauri (команды, привязки)
+tauri:build — настройки сборки Tauri / tauri.conf.json
+tauri:dev — dev-конфигурация (beforeDevCommand, devUrl)
+assets — статические ресурсы, public, images
+config — .env, next.config.js / next.config.mjs, assetPrefix, basePath
+ci — файлы CI/CD, workflow для сборки web + tauri
+test — unit/integration тесты (Jest, Playwright, Vitest)
+docs — документация проекта
+chore — вспомогательные изменения (форматирование, настройки IDE)
+
+Примеры:
+feat(web,assets): Добавить экран приветствия и логотип
+fix(tauri:build,tauri): Исправить путь frontendDist в tauri.conf.json
+chore(deps,tauri): Обновить версии npm-пакетов и cargo-пакетов
+
+Рекомендации по структуре репозитория и workflow
+Расположение:
+Next.js проект в корне (package.json, next.config.mjs, pages/app или src)
+Tauri в папке src-tauri (tauri.conf.json, Cargo.toml)
+Статический вывод Next.js: папка out (frontendDist для Tauri) или настроенный buildTarget
+Скрипты (рекомендуемые в package.json):
+"dev": "next dev"
+"dev:tauri": "TAURI_DEV_HOST=http://localhost:3000 npx tauri dev" (или аналог)
+"build": "next build && next export"
+"build:tauri": "npm run build && npx tauri build"
+
+Dev-процесс:
+В dev используйте next dev и npx tauri dev; убедитесь, что tauri.conf.json.devUrl указывает на правильный порт.
+
+Для релиза используйте next build && next export, затем npx tauri build; frontendDist должен указывать на ../out или соответствующую директорию.
+
+Проверки в CI:
+Проверять сборку web (next build), экспорт (next export), lint, тесты и затем сборку tauri (опционально в отдельном шаге с установленным Rust).
+
+Язык и стиль кода
+Язык документации и коммитов — русский.
+
+Стиль кода frontend:
+Следовать TypeScript + React/Next.js best practices.
+Использовать ESLint и Prettier; конфигурации должны быть в репозитории.
+
+Разделять импорты: 1) внешние, 2) алиасы/project, 3) относительные.
+Писать осмысленные имена; экспортировать типы интерфейсов явно.
+Комментировать публичные компоненты и хуки.
+
+Стиль кода для src-tauri (Rust):
+Следовать rustfmt и Clippy.
+Документировать публичные функции и команды Tauri.
+
+Разделять ответственность между Rust-частью и web-частью: Rust только для нативных задач, веб — для UI.
